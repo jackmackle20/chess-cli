@@ -2,14 +2,6 @@
 
 A CLI tool for fetching, caching, and analyzing your [chess.com](https://www.chess.com) games. Local SQLite database for speed and offline use. Optional Stockfish integration for move-by-move analysis.
 
-```
-    ♚ ♛ ♜ ♝ ♞ ♟
-   ┌─────────────┐
-   │  chess-cli   │
-   └─────────────┘
-    ♙ ♘ ♗ ♖ ♕ ♔
-```
-
 ## Install
 
 Requires Python 3.11+ and [uv](https://docs.astral.sh/uv/).
