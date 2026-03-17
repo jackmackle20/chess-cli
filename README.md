@@ -12,17 +12,20 @@ A CLI tool for fetching, caching, and analyzing your [chess.com](https://www.che
 
 ## Install
 
-Requires Python 3.11+.
+Requires Python 3.11+ and [uv](https://docs.astral.sh/uv/).
 
 ```bash
-# Clone and install
+# Install globally (available in any shell)
 git clone https://github.com/jackmackle/chess-cli.git
+uv tool install ./chess-cli
+```
+
+Or for development:
+
+```bash
 cd chess-cli
 uv venv && source .venv/bin/activate
 uv pip install -e .
-
-# First run — sets your default username
-chess init
 ```
 
 For move analysis, install [Stockfish](https://stockfishchess.org/):
