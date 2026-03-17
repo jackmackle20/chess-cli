@@ -9,10 +9,13 @@ from chess_cli.config import DEFAULT_DEPTH, THRESHOLD_GOOD, THRESHOLD_INACCURACY
 
 
 def get_engine(path: Optional[str] = None, depth: int = DEFAULT_DEPTH):
-    """Return a Stockfish instance or None if not available."""
-    import shutil
+    """Return a Stockfish instance or None if not available.
 
-    engine_path = path or shutil.which("stockfish")
+    Searches system PATH, managed install, and auto-downloads if needed.
+    """
+    from chess_cli.config import get_stockfish_path
+
+    engine_path = get_stockfish_path(path)
     if not engine_path:
         return None
 

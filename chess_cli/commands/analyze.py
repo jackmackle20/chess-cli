@@ -56,7 +56,7 @@ def analyze(
     engine = get_engine(stockfish, depth)
     if engine is None:
         print_error(
-            "Stockfish not found. Install it with: brew install stockfish (macOS) or apt install stockfish (Linux)",
+            "Stockfish not found and auto-download failed. Install manually: brew install stockfish (macOS) or apt install stockfish (Linux)",
             json_,
         )
         return
