@@ -230,7 +230,7 @@ body {{
 
 /* Right panel */
 .panel {{
-    width: 300px;
+    width: 380px;
     margin-left: 16px;
     display: flex;
     flex-direction: column;
@@ -287,29 +287,54 @@ body {{
     overflow-y: auto;
     flex: 1;
 }}
+.moves-hdr {{
+    display: grid;
+    grid-template-columns: 28px 1fr 50px 1fr 50px;
+    font-size: 10px;
+    font-weight: 600;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 6px 0 4px;
+    border-bottom: 1px solid #3d3b39;
+}}
+.moves-hdr > div {{ padding: 0 6px; }}
+.moves-hdr > div:nth-child(3),
+.moves-hdr > div:nth-child(5) {{ text-align: right; }}
 .moves {{
     display: grid;
-    grid-template-columns: 32px 1fr 1fr;
+    grid-template-columns: 28px 1fr 50px 1fr 50px;
     font-size: 13px;
     font-family: 'SF Mono', Consolas, 'Liberation Mono', monospace;
-    padding: 4px 0;
+    padding: 2px 0;
 }}
 .mn {{
     color: #666;
     text-align: right;
-    padding: 4px 6px 4px 4px;
+    padding: 4px 4px 4px 2px;
     user-select: none;
 }}
 .mv {{
-    padding: 4px 10px;
+    padding: 4px 6px;
     cursor: pointer;
     border-radius: 3px;
     transition: background 0.1s;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }}
 .mv:hover {{ background: #3d3b39; }}
 .mv.cur {{ background: #4a90d9; color: #fff; }}
 .mv.empty {{ cursor: default; }}
 .mv.empty:hover {{ background: transparent; }}
+.ev {{
+    padding: 4px 4px;
+    text-align: right;
+    font-size: 11px;
+    color: #777;
+    user-select: none;
+    white-space: nowrap;
+}}
 
 .c-book {{ color: #999; }}
 .c-best {{ color: #96bc4b; }}
@@ -365,6 +390,9 @@ body {{
         </div>
         <div class="eval-display" id="ev-text">Starting position</div>
         <div class="moves-box" id="ml-wrap">
+            <div class="moves-hdr">
+                <div></div><div>White</div><div>Eval</div><div>Black</div><div>Eval</div>
+            </div>
             <div class="moves" id="ml"></div>
         </div>
     </div>
@@ -425,20 +453,49 @@ function buildBoard() {{
     }}
 }}
 
+function fmtEval(v) {{
+    if (v==null) return '';
+    if (Math.abs(v)>=10000) return (v>0?'+':'-')+'M'+Math.round(Math.abs(v)-10000);
+    return (v>=0?'+':'')+(v/100).toFixed(1);
+}}
+
+function makeEv(p) {{
+    const d = document.createElement('div');
+    d.className = 'ev';
+    if (p.eval_after!=null) d.textContent = fmtEval(p.eval_after);
+    return d;
+}}
+
 function buildMoves() {{
     const ml = $('ml'); ml.innerHTML = '';
     for (let i=1;i<P.length;i++) {{
         const p = P[i], w = p.ply%2===1;
-        if (w) {{ const n=document.createElement('div'); n.className='mn'; n.textContent=Math.ceil(p.ply/2)+'.'; ml.appendChild(n); }}
-        const d = document.createElement('div');
-        const cc = p.classification ? 'c-'+p.classification : '';
-        d.className = 'mv '+cc;
-        d.dataset.ply = p.ply;
-        d.textContent = p.san;
-        if (p.classification && CLS[p.classification]) d.title = CLS[p.classification];
-        d.onclick = () => go(p.ply);
-        ml.appendChild(d);
-        if (w && i===P.length-1) {{ const e=document.createElement('div'); e.className='mv empty'; ml.appendChild(e); }}
+        if (w) {{
+            const n=document.createElement('div'); n.className='mn'; n.textContent=Math.ceil(p.ply/2)+'.'; ml.appendChild(n);
+            const d = document.createElement('div');
+            const cc = p.classification ? 'c-'+p.classification : '';
+            d.className = 'mv '+cc;
+            d.dataset.ply = p.ply;
+            d.textContent = p.san;
+            if (p.classification && CLS[p.classification]) d.title = CLS[p.classification];
+            d.onclick = () => go(p.ply);
+            ml.appendChild(d);
+            ml.appendChild(makeEv(p));
+            if (i===P.length-1) {{
+                const e=document.createElement('div'); e.className='mv empty'; ml.appendChild(e);
+                const ea=document.createElement('div'); ea.className='ev'; ml.appendChild(ea);
+            }}
+        }} else {{
+            const d = document.createElement('div');
+            const cc = p.classification ? 'c-'+p.classification : '';
+            d.className = 'mv '+cc;
+            d.dataset.ply = p.ply;
+            d.textContent = p.san;
+            if (p.classification && CLS[p.classification]) d.title = CLS[p.classification];
+            d.onclick = () => go(p.ply);
+            ml.appendChild(d);
+            ml.appendChild(makeEv(p));
+        }}
     }}
 }}
 
