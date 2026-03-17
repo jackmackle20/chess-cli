@@ -16,12 +16,12 @@ THRESHOLD_MISTAKE = 150
 
 BOOK_PLY = 16  # first N half-moves classified as "book" if in opening table
 
-ASCII_ART = r"""
-    ♚ ♛ ♜ ♝ ♞ ♟
-   ┌─────────────┐
-   │  chess-cli   │
-   └─────────────┘
-    ♙ ♘ ♗ ♖ ♕ ♔
+ASCII_ART = """
+  ♚  ♛  ♜  ♝  ♞  ♟
+ ┌──────────────────┐
+ │    chess-cli     │
+ └──────────────────┘
+  ♙  ♘  ♗  ♖  ♕  ♔
 """
 
 
