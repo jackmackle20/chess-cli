@@ -20,12 +20,7 @@ uv venv && source .venv/bin/activate
 uv pip install -e .
 ```
 
-For move analysis, install [Stockfish](https://stockfishchess.org/):
-
-```bash
-brew install stockfish        # macOS
-sudo apt install stockfish    # Linux
-```
+Stockfish is **automatically downloaded** on first use — no manual install needed. If you prefer to manage it yourself, `brew install stockfish` or `sudo apt install stockfish` also works.
 
 ## Usage
 
@@ -43,9 +38,12 @@ chess stats
 chess stats --time-control rapid
 chess openings --color white --sort winrate
 
-# Stockfish analysis (requires stockfish)
+# Stockfish analysis (auto-downloads stockfish on first use)
 chess analyze GAME_ID
 chess analyze GAME_ID --depth 22 --force
+
+# Interactive game review in the browser
+chess review GAME_ID
 
 # Find recurring blunders across analyzed games
 chess blunders
@@ -71,6 +69,7 @@ chess games list --result loss --json | chess analyze --json
 | `chess stats` | Win/loss/draw stats with time control breakdown |
 | `chess openings` | Opening repertoire stats (ECO codes, win rates) |
 | `chess analyze ID` | Stockfish move-by-move analysis |
+| `chess review ID` | Interactive browser-based game review |
 | `chess blunders` | Find recurring blunder patterns |
 
 Every command that takes a username argument will fall back to your configured default if omitted. You can always pass a username explicitly to look at another player's games.
