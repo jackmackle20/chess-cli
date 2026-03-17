@@ -1,0 +1,22 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "chess-cli"
+version = "0.1.0"
+description = "Chess.com game fetcher, cache, and analyzer"
+requires-python = ">=3.11"
+dependencies = [
+    "typer[all]>=0.12",
+    "httpx>=0.27",
+    "python-chess>=1.999",
+    "stockfish>=3.28",
+]
+
+[project.scripts]
+chess = "chess_cli.main:app"
+
+[tool.hatch.build.targets.wheel]
+packages = ["chess_cli"]
+include = ["chess_cli/data/*"]
