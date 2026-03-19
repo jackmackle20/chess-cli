@@ -86,6 +86,24 @@ Every command that takes a username argument will fall back to your configured d
 - **Analysis** runs each move through Stockfish and classifies it as book, best, good, inaccuracy, mistake, or blunder based on centipawn loss.
 - Subsequent syncs are incremental — only the current month is re-fetched unless you pass `--full`.
 
+## Claude Code Skill
+
+chess-cli ships with a skill that lets Claude Code act as your chess coach.
+
+```bash
+chess install-skill
+```
+
+Then in Claude Code:
+
+```
+/chess sync my games and tell me what I'm bad at
+/chess analyze my last 5 losses
+/chess what openings should I stop playing as white?
+```
+
+The skill teaches the agent how to use every command, pipe results, and give coaching advice.
+
 ## License
 
 MIT
