@@ -1,6 +1,6 @@
 import typer
 
-from chess_cli.commands import sync, games, stats, openings, analyze, blunders, review
+from chess_cli.commands import sync, games, stats, openings, analyze, blunders, review, skill
 from chess_cli.commands import init as init_cmd
 from chess_cli.commands import config_cmd
 
@@ -19,6 +19,7 @@ app.add_typer(openings.app, name="openings")
 app.add_typer(analyze.app, name="analyze")
 app.add_typer(blunders.app, name="blunders")
 app.add_typer(review.app, name="review")
+app.add_typer(skill.app, name="install-skill")
 
 
 @app.callback()
