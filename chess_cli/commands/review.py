@@ -455,7 +455,11 @@ function buildBoard() {{
 
 function fmtEval(v) {{
     if (v==null) return '';
-    if (Math.abs(v)>=10000) return (v>0?'+':'-')+'M'+Math.round(Math.abs(v)-10000);
+    if (Math.abs(v)>=10000) {{
+        const n=Math.round(Math.abs(v)-10000);
+        if (n===0) return '#';
+        return (v>0?'+':'-')+'M'+n;
+    }}
     return (v>=0?'+':'')+(v/100).toFixed(1);
 }}
 
@@ -555,10 +559,11 @@ function evalBar(p) {{
     if (v==null&&p.ply===0) v=0;
     if (v==null) for (let i=p.ply-1;i>=0;i--) {{ if (P[i].eval_after!=null) {{ v=P[i].eval_after; break; }} }}
     if (v==null) v=0;
-    const clamped=Math.max(-1000,Math.min(1000,v));
+    const isMate=Math.abs(v)>=10000;
+    const clamped=isMate?(v>0?1000:-1000):Math.max(-1000,Math.min(1000,v));
     const pct=50+(clamped/1000)*50;
     $('ev-fill').style.height=pct+'%';
-    const abs=Math.abs(v), disp=abs>=10000?'M'+Math.round(abs-10000):(abs/100).toFixed(1);
+    const abs=Math.abs(v), mn=Math.round(abs-10000), disp=abs>=10000?(mn===0?'#':'M'+mn):(abs/100).toFixed(1);
     if (v>=0) {{ $('ev-top').textContent=''; $('ev-bot').textContent=disp; $('ev-bot').style.color='#444'; }}
     else {{ $('ev-top').textContent=disp; $('ev-top').style.color='#ddd'; $('ev-bot').textContent=''; }}
 }}
@@ -569,7 +574,8 @@ function evalText(p) {{
     let t=p.san;
     if (p.eval_after!=null) {{
         const v=p.eval_after;
-        t += '  ['+(Math.abs(v)>=10000?(v>0?'+':'-')+'M'+Math.round(Math.abs(v)-10000):(v>=0?'+':'')+(v/100).toFixed(2))+']';
+        const mn=Math.round(Math.abs(v)-10000);
+        t += '  ['+(Math.abs(v)>=10000?(mn===0?'#':(v>0?'+':'-')+'M'+mn):(v>=0?'+':'')+(v/100).toFixed(2))+']';
     }}
     if (p.classification&&CLS[p.classification]) {{
         t += '  '+CLS[p.classification];
