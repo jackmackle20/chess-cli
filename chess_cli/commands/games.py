@@ -5,7 +5,7 @@ import typer
 from rich.table import Table
 
 from chess_cli.config import resolve_username
-from chess_cli.db import get_connection, create_schema, get_game, get_moves, list_games
+from chess_cli.db import get_connection, create_schema, get_game, get_moves, list_games, append_note
 from chess_cli.output import print_output, print_error, console
 
 app = typer.Typer(help="List and show games")
@@ -140,6 +140,10 @@ def games_show(
                 continue
             c.print(f"[bold]{k}:[/bold] {v}")
 
+        if data.get("notes"):
+            c.print(f"\n[bold]Notes:[/bold]")
+            c.print(data["notes"])
+
         if pgn and "pgn" in data:
             c.print("\n[bold]PGN:[/bold]")
             c.print(data["pgn"])
@@ -167,3 +171,27 @@ def games_show(
             c.print(move_table)
 
     print_output(game, json_mode=json_, rich_fn=rich_fn)
+
+
+@app.command("note")
+def games_note(
+    game_id: str = typer.Argument(..., help="Game ID"),
+    note: str = typer.Argument(..., help="Note text to append"),
+    json_: bool = typer.Option(False, "--json"),
+    db: Optional[str] = typer.Option(None, "--db"),
+):
+    """Add a note to a game."""
+    conn = get_connection(db)
+    create_schema(conn)
+
+    updated = append_note(conn, game_id, note)
+    if updated is None:
+        print_error(f"Game {game_id!r} not found in local cache. Run `chess sync` first.", json_)
+        return
+
+    def rich_fn(data, c):
+        c.print(f"[green]Note added to game {game_id}[/green]")
+        c.print(f"\n[bold]Notes:[/bold]")
+        c.print(data["notes"])
+
+    print_output({"game_id": game_id, "notes": updated}, json_mode=json_, rich_fn=rich_fn)

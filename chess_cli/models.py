@@ -24,6 +24,7 @@ class Game:
     opening_name: Optional[str]
     opening_ply: Optional[int]
     analyzed: int
+    notes: Optional[str] = None
 
     def to_dict(self) -> dict:
         d = asdict(self)
