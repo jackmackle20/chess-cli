@@ -11,6 +11,7 @@ chess config set-user USERNAME      # Change default username
 chess sync [USERNAME]               # Fetch games from chess.com
 chess games list [USERNAME]         # List games with filters
 chess games show GAME_ID            # Show game details
+chess games note GAME_ID "TEXT"     # Add a timestamped note to a game
 chess stats [USERNAME]              # Win/loss/draw statistics
 chess openings [USERNAME]           # Opening repertoire analysis
 chess analyze GAME_ID               # Stockfish move-by-move analysis
@@ -62,7 +63,10 @@ chess games list --result loss --limit 5 --json
 chess analyze GAME_ID --json
 chess review GAME_ID  # opens browser viewer
 
-# 6. Find recurring blunders across all analyzed games
+# 6. Add notes to a game
+chess games note GAME_ID "missed the knight fork on move 14"
+
+# 7. Find recurring blunders across all analyzed games
 chess blunders --json
 ```
 
@@ -95,6 +99,11 @@ chess games list --result loss --time-control blitz --json | chess analyze --jso
 ### chess analyze --json
 ```json
 [{"game_id":"123","move_count":45,"best":18,"good":12,"book":6,"inaccuracy":4,"mistake":3,"blunder":2}]
+```
+
+### chess games note --json
+```json
+{"game_id":"123","notes":"[2026-03-24] missed the knight fork on move 14\n[2026-03-24] actually Nf6 refutes this line"}
 ```
 
 ### chess blunders --json

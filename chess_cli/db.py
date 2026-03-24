@@ -25,7 +25,8 @@ CREATE TABLE IF NOT EXISTS games (
     opening_eco     TEXT,
     opening_name    TEXT,
     opening_ply     INTEGER,
-    analyzed        INTEGER NOT NULL DEFAULT 0
+    analyzed        INTEGER NOT NULL DEFAULT 0,
+    notes           TEXT
 );
 CREATE INDEX IF NOT EXISTS idx_games_username   ON games(username);
 CREATE INDEX IF NOT EXISTS idx_games_end_time   ON games(end_time);
@@ -64,7 +65,7 @@ GAME_COLUMNS = [
     "id", "username", "pgn", "url", "time_control", "time_class", "rules",
     "rated", "white_username", "white_rating", "black_username", "black_rating",
     "result", "termination", "color", "end_time", "opening_eco", "opening_name",
-    "opening_ply", "analyzed",
+    "opening_ply", "analyzed", "notes",
 ]
 
 MOVE_COLUMNS = [
@@ -85,14 +86,25 @@ def get_connection(db_path: Optional[str] = None) -> sqlite3.Connection:
 
 def create_schema(conn: sqlite3.Connection):
     conn.executescript(DDL)
+    _migrate(conn)
     conn.commit()
+
+
+def _migrate(conn: sqlite3.Connection):
+    """Add columns that may be missing from older databases."""
+    cols = {row[1] for row in conn.execute("PRAGMA table_info(games)").fetchall()}
+    if "notes" not in cols:
+        conn.execute("ALTER TABLE games ADD COLUMN notes TEXT")
 
 
 def upsert_game(conn: sqlite3.Connection, game: dict):
     placeholders = ", ".join("?" for _ in GAME_COLUMNS)
     cols = ", ".join(GAME_COLUMNS)
+    # Preserve notes on re-sync: keep existing value when incoming is NULL
     updates = ", ".join(
-        f"{c}=excluded.{c}" for c in GAME_COLUMNS if c != "id"
+        f"{c}=excluded.{c}" if c != "notes"
+        else f"{c}=COALESCE(games.{c}, excluded.{c})"
+        for c in GAME_COLUMNS if c != "id"
     )
     values = [game.get(c) for c in GAME_COLUMNS]
     conn.execute(
@@ -168,6 +180,22 @@ def upsert_moves(conn: sqlite3.Connection, game_id: str, moves: list[dict]):
         conn.execute(
             f"INSERT INTO moves ({col_str}) VALUES ({placeholders})", values
         )
+
+
+def append_note(conn: sqlite3.Connection, game_id: str, note: str) -> Optional[str]:
+    """Append a timestamped note to a game. Returns the updated notes or None if game not found."""
+    from datetime import datetime, timezone
+
+    game = get_game(conn, game_id)
+    if not game:
+        return None
+    stamp = datetime.now(tz=timezone.utc).strftime("%Y-%m-%d")
+    entry = f"[{stamp}] {note}"
+    existing = game.get("notes") or ""
+    updated = f"{existing}\n{entry}".strip()
+    conn.execute("UPDATE games SET notes=? WHERE id=?", (updated, game_id))
+    conn.commit()
+    return updated
 
 
 def mark_analyzed(conn: sqlite3.Connection, game_id: str):
