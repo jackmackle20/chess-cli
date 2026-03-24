@@ -40,7 +40,9 @@ def _cp_to_float(info) -> Optional[float]:
     if value is None:
         return None
     if eval_type == "mate":
-        return 10000.0 if value > 0 else -10000.0
+        # Encode as ±(10000 + moves_to_mate) so the UI can display "M3", "M1", etc.
+        dist = abs(value)
+        return (10000.0 + dist) if value > 0 else -(10000.0 + dist)
     return float(value)
 
 
