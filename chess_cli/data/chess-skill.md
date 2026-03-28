@@ -12,6 +12,8 @@ chess sync [USERNAME]               # Fetch games from chess.com
 chess games list [USERNAME]         # List games with filters
 chess games show GAME_ID            # Show game details
 chess games note GAME_ID "TEXT"     # Add a timestamped note to a game
+chess games notes [USERNAME]        # List all games with notes
+chess games notes --search "TEXT"   # Search notes for a keyword
 chess stats [USERNAME]              # Win/loss/draw statistics
 chess openings [USERNAME]           # Opening repertoire analysis
 chess analyze GAME_ID               # Stockfish move-by-move analysis

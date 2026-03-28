@@ -182,6 +182,16 @@ def upsert_moves(conn: sqlite3.Connection, game_id: str, moves: list[dict]):
         )
 
 
+def list_noted_games(conn: sqlite3.Connection, username: str) -> list[dict]:
+    """Return all games that have notes, most recent first."""
+    rows = conn.execute(
+        "SELECT * FROM games WHERE username=? AND notes IS NOT NULL AND notes != '' "
+        "ORDER BY end_time DESC",
+        (username,),
+    ).fetchall()
+    return [dict(r) for r in rows]
+
+
 def append_note(conn: sqlite3.Connection, game_id: str, note: str) -> Optional[str]:
     """Append a timestamped note to a game. Returns the updated notes or None if game not found."""
     from datetime import datetime, timezone
