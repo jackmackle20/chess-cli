@@ -5,7 +5,7 @@ import typer
 from rich.table import Table
 
 from chess_cli.config import resolve_username
-from chess_cli.db import get_connection, create_schema, get_game, get_moves, list_games, append_note
+from chess_cli.db import get_connection, create_schema, get_game, get_moves, list_games, list_noted_games, append_note
 from chess_cli.output import print_output, print_error, console
 
 app = typer.Typer(help="List and show games")
@@ -195,3 +195,53 @@ def games_note(
         c.print(data["notes"])
 
     print_output({"game_id": game_id, "notes": updated}, json_mode=json_, rich_fn=rich_fn)
+
+
+@app.command("notes")
+def games_notes(
+    username: Optional[str] = typer.Argument(None, help="chess.com username (default: configured user)"),
+    search: Optional[str] = typer.Option(None, "--search", help="Filter notes containing this text"),
+    json_: bool = typer.Option(False, "--json"),
+    db: Optional[str] = typer.Option(None, "--db"),
+):
+    """List all games that have notes."""
+    username = resolve_username(username, json_)
+    conn = get_connection(db)
+    create_schema(conn)
+
+    games = list_noted_games(conn, username)
+
+    if search:
+        term = search.lower()
+        games = [g for g in games if term in (g.get("notes") or "").lower()]
+
+    output = []
+    for g in games:
+        output.append({
+            "id": g["id"],
+            "date": datetime.fromtimestamp(g["end_time"], tz=timezone.utc).strftime("%Y-%m-%d"),
+            "result": g["result"],
+            "color": g["color"],
+            "opponent": g["black_username"] if g["color"] == "white" else g["white_username"],
+            "opening_name": g.get("opening_name") or "",
+            "notes": g["notes"],
+        })
+
+    def rich_fn(data, c):
+        if not data:
+            c.print("[yellow]No games with notes found.[/yellow]")
+            return
+        for g in data:
+            res = g["result"]
+            res_color = {"win": "green", "loss": "red", "draw": "yellow"}.get(res, "white")
+            c.print(
+                f"[bold]{g['id'][:12]}[/bold]  {g['date']}  "
+                f"{g['color']} vs {g['opponent']}  "
+                f"[{res_color}]{res}[/{res_color}]  "
+                f"[dim]{g['opening_name']}[/dim]"
+            )
+            for line in g["notes"].splitlines():
+                c.print(f"  {line}")
+            c.print()
+
+    print_output(output, json_mode=json_, rich_fn=rich_fn)
