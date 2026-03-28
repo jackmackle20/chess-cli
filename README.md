@@ -33,6 +33,11 @@ chess games list
 chess games list --result loss --time-control blitz --limit 10
 chess games show GAME_ID --moves
 
+# Add notes to games
+chess games note GAME_ID "missed the knight fork on move 14"
+chess games notes                        # list all noted games
+chess games notes --search "knight"      # search notes
+
 # Stats and openings
 chess stats
 chess stats --time-control rapid
@@ -66,6 +71,8 @@ chess games list --result loss --json | chess analyze --json
 | `chess sync` | Fetch games from chess.com (incremental by default) |
 | `chess games list` | List cached games with filters |
 | `chess games show ID` | Show game details, PGN, or analyzed moves |
+| `chess games note ID "text"` | Add a timestamped note to a game |
+| `chess games notes` | List all games with notes (supports `--search`) |
 | `chess stats` | Win/loss/draw stats with time control breakdown |
 | `chess openings` | Opening repertoire stats (ECO codes, win rates) |
 | `chess analyze ID` | Stockfish move-by-move analysis |
